@@ -260,8 +260,10 @@ Proof.
 Theorem eqb_refl : forall n : nat,
   (n =? n) = true.
 Proof.
-  Admitted.
-  
+  intros. induction n as [| n' IHn'].
+  - simpl. reflexivity.
+  - simpl. rewrite -> IHn'. reflexivity. Qed.
+
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (even_S)
@@ -276,7 +278,11 @@ Proof.
 Theorem even_S : forall n : nat,
   even (S n) = negb (even n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn].
+  - simpl. reflexivity.
+  - rewrite -> IHn. simpl. rewrite -> negb_involutive. reflexivity.
+Qed.
+
 (** [] *)
 
 (* ################################################################# *)

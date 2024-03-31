@@ -1,15 +1,2 @@
-Inductive season : Type :=
-  | spring
-  | summer
-  | autumn
-  | winter.
-
-Definition opposite_season (s : season) : season :=
-  match s with
-  | spring => autumn
-  | summer => winter
-  | autumn => spring
-  | winter => summer
-  end.
-
-Compute (opposite_season spring).
+From LF Require Export Basics.
+Example test_leb1:                leb 2 2 = true.
