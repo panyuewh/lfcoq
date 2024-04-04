@@ -158,9 +158,9 @@ Abort.
 
 Theorem add_0_r : forall n:nat, n + 0 = n.
 Proof.
-  intros n. induction n as [| n' IHn'].
+  intros n. induction n as [| n' IHn']. 
   - (* n = 0 *)    reflexivity.
-  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.  Qed.
+  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity. Qed.
 
 (** Like [destruct], the [induction] tactic takes an [as...]
     clause that specifies the names of the variables to be introduced
@@ -511,7 +511,7 @@ Theorem add_shuffle3 : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
   (* FILL IN HERE *) Admitted.
-
+  
 (** Now prove commutativity of multiplication.  You will probably want
     to look for (or define and prove) a "helper" theorem to be used in
     the proof of this one. Hint: what is [n * (1 + k)]? *)
