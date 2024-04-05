@@ -220,9 +220,7 @@ Theorem add_comm : forall n m : nat,
 Proof.
   intros n m. induction n as [| n' IHn'].
   - simpl. rewrite <- plus_n_O. reflexivity.
-  - rewrite <- plus_n_Sm. rewrite <- IHn'. induction m as [| m' IHm'].
-    + simpl. reflexivity.
-    + simpl. reflexivity. Qed.  
+  - simpl. rewrite <- plus_n_Sm. rewrite <- IHn'. reflexivity. Qed.  
 
 Theorem add_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
@@ -472,12 +470,44 @@ Proof.
     things stand). *)
 
 (** **** Exercise: 2 stars, advanced, especially useful (add_comm_informal)
-
+    
     Translate your solution for [add_comm] into an informal proof:
 
     Theorem: Addition is commutative.
 
-    Proof: (* FILL IN HERE *)
+    Proof: By induction on [n].
+
+    - First, suppose [n = 0]. We just need to show that
+
+        0 + m = m + 0.
+
+      Follow the definition of [plus], we know
+       
+        0 + m = m.
+
+      By theorem [add_0_r], we have
+       
+        m + 0 = m.
+
+    - Next, suppose [n = S n'], where  
+
+        n' + m = m + n'.
+
+      We must now show that
+
+        (S n') + m = m + (S n').
+
+      Follow theorem [plus_n_Sm], we have
+
+        m + (S n') = S (m + n').
+
+      Follow the definition of [plus], we have
+
+        (S n') + m = S (n' + m).
+
+      Given the induction hypothesis, we have
+
+        S (m + n') = S (n' + m). Qed. 
 *)
 
 (* Do not modify the following line: *)
@@ -492,7 +522,27 @@ Definition manual_grade_for_add_comm_informal : option (nat*string) := None.
 
     Theorem: [(n =? n) = true] for any [n].
 
-    Proof: (* FILL IN HERE *)
+    Proof: By induction on [n].
+
+    - First, suppose [n = 0], we must show that
+
+        (0 =? 0) = true.
+
+      This follows directly from definition of [eqb].
+
+    - Next, suppose [n = S n'], where
+
+        (n' =? n') = true. 
+
+      We must show that
+
+        (S n' =? S n') = true.
+
+      Follow the definition of [eqb], we must show
+
+        (n' =? n') = true.
+
+      This follows directly from the induction hypothesis. Qed.
 *)
 
 (* Do not modify the following line: *)
@@ -510,7 +560,11 @@ Definition manual_grade_for_eqb_refl_informal : option (nat*string) := None.
 Theorem add_shuffle3 : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+  assert (H: (m + n) = (n + m)).
+  { rewrite -> add_comm. reflexivity. }
+  rewrite -> add_assoc'. rewrite -> add_assoc'.
+  rewrite -> H. reflexivity. Qed.
   
 (** Now prove commutativity of multiplication.  You will probably want
     to look for (or define and prove) a "helper" theorem to be used in
@@ -519,7 +573,14 @@ Proof.
 Theorem mul_comm : forall m n : nat,
   m * n = n * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros m n. 
+  induction m as [|k IHk]. 
+  - (* m = 0 *)  
+    simpl. rewrite -> mul_0_r. reflexivity.
+  - (* m = S k *)
+    rewrite <- mult_n_Sm. rewrite -> add_comm.  
+    simpl. rewrite -> IHk. reflexivity. 
+Qed.  
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (plus_leb_compat_l)
