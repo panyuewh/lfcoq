@@ -594,7 +594,14 @@ Check leb.
 Theorem plus_leb_compat_l : forall n m p : nat,
   n <=? m = true -> (p + n) <=? (p + m) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p. 
+  intros Ha. 
+  induction p as [| p' IHp']. 
+  - (* p = 0 *)
+    simpl. rewrite Ha. reflexivity.
+  - (* p = S p' *)
+    simpl. rewrite IHp'. reflexivity.
+  Qed.
 
 (** [] *)
 
@@ -610,27 +617,39 @@ Proof.
 
 Theorem leb_refl : forall n:nat,
   (n <=? n) = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* induction *)
+  induction n as [| n' IHn'].
+  - (* n = 0 *)
+    simpl. reflexivity.
+  - (* n = S n' *)
+    simpl. rewrite -> IHn'. reflexivity.
+  Qed.
 
 Theorem zero_neqb_S : forall n:nat,
   0 =? (S n) = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* induction: X *)
+  intros. simpl. reflexivity. 
+  Qed.
 
 Theorem andb_false_r : forall b : bool,
   andb b false = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* rewriting: X *)
+  intros. destruct b. 
+  - (* true *)
+    simpl. reflexivity.
+  - (* false *)
+    simpl. reflexivity.
+  Qed. 
 
 Theorem S_neqb_0 : forall n:nat,
   (S n) =? 0 = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* destruct: X *)
+  intros. simpl. reflexivity.
 
 Theorem mult_1_l : forall n:nat, 1 * n = n.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* induction: X *)
+  intro. simpl. rewrite plus_n_O. reflexivity. 
+  Qed. 
 
 Theorem all3_spec : forall b c : bool,
   orb
@@ -638,18 +657,58 @@ Theorem all3_spec : forall b c : bool,
     (orb (negb b)
          (negb c))
   = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* rewriting: X *)
+  destruct b. 
+  - (* b = true *)
+    destruct c. 
+    + (* c = true *)
+      simpl. reflexivity.
+    + (* c = false *)
+      simpl. reflexivity.
+  - (* b = false *)
+    destruct c. 
+    + (* c = true *)
+      simpl. reflexivity.
+    + (* c = false *)
+      simpl. reflexivity.
+  Qed.
 
 Theorem mult_plus_distr_r : forall n m p : nat,
   (n + m) * p = (n * p) + (m * p).
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* rewriting: X *)
+  intros. 
+  induction p as [| q IHq].
+  - (* p = 0 *)
+    rewrite mul_0_r. rewrite mul_0_r. rewrite mul_0_r. reflexivity. 
+  - (* p = S q *)
+    rewrite mul_comm. simpl.
+    rewrite mul_comm. rewrite IHq.  
+    simpl. rewrite add_shuffle3. 
+    rewrite add_assoc. rewrite add_assoc. 
+    assert (Hn: n * S q = n * q + n).
+    { rewrite mul_comm. simpl. 
+      rewrite add_comm. rewrite mul_comm. 
+      reflexivity. }
+    rewrite Hn.
+    assert (Hm: m * S q = m + m * q ).
+    {
+      rewrite mul_comm. simpl.
+      rewrite mul_comm. reflexivity.
+    }
+    rewrite Hm. rewrite add_assoc.
+    reflexivity.
+  Qed.
 
 Theorem mult_assoc : forall n m p : nat,
   n * (m * p) = (n * m) * p.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  (* rewriting *)
+  intros n m p. 
+  induction n as [| n' IHn'].
+  - (* n = 0 *)
+    simpl. reflexivity.
+  - (* n = S n' *)
+    simpl. rewrite IHn'. rewrite mult_plus_distr_r. reflexivity.
+  Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (add_shuffle3')
@@ -666,7 +725,10 @@ Proof.
 Theorem add_shuffle3' : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+  rewrite -> add_assoc'. rewrite -> add_assoc'.
+  replace (n + m) with (m + n). reflexivity.
+  rewrite add_comm. reflexivity. Qed.
 (** [] *)
 
 (* ################################################################# *)
