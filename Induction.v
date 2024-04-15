@@ -645,7 +645,8 @@ Theorem S_neqb_0 : forall n:nat,
   (S n) =? 0 = false.
 Proof.  (* destruct: X *)
   intros. simpl. reflexivity.
-
+  Qed.
+  
 Theorem mult_1_l : forall n:nat, 1 * n = n.
 Proof.  (* induction: X *)
   intro. simpl. rewrite plus_n_O. reflexivity. 
