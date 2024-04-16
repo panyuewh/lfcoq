@@ -999,7 +999,7 @@ Qed.
 Theorem count_member_nonzero : forall (s : bag),
   1 <=? (count 1 (1 :: s)) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  reflexivity. Qed.
 (** [] *)
 
 (** The following lemma about [leb] might help you in the next
@@ -1020,7 +1020,17 @@ Proof.
 Theorem remove_does_not_increase_count: forall (s : bag),
   (count 0 (remove_one 0 s)) <=? (count 0 s) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction s as [| n s' IHs'].
+  - (* s = nil *)
+    reflexivity.
+  - (* s = cons n s' *)
+    destruct n.
+    + (* n = O *)
+      simpl. rewrite -> leb_n_Sn. reflexivity.
+    + (* n = S n' *)
+      simpl. rewrite -> IHs'. reflexivity.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (bag_count_sum)
@@ -1047,9 +1057,8 @@ Proof.
 Theorem involution_injective : forall (f : nat -> nat),
     (forall n : nat, n = f (f n)) -> (forall n1 n2 : nat, f n1 = f n2 -> n1 = n2).
 Proof.
-  (* FILL IN HERE *) Admitted.
-
-(** [] *)
+  intros. rewrite H. rewrite <- H0. rewrite <- H. reflexivity. Qed.
+ (** [] *)
 
 (** **** Exercise: 2 stars, advanced (rev_injective)
 
@@ -1061,7 +1070,12 @@ Proof.
 Theorem rev_injective : forall (l1 l2 : natlist),
   rev l1 = rev l2 -> l1 = l2.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l1 l2. 
+  intros H. (* rev l1 = rev l2 *)
+  rewrite <- rev_involutive. 
+  rewrite <- H. 
+  rewrite -> rev_involutive. reflexivity. 
+Qed.
 (** [] *)
 
 (* ################################################################# *)
