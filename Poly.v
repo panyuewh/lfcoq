@@ -721,16 +721,16 @@ Proof. reflexivity. Qed.
     and returns a list of just those that are even and greater than
     7. *)
 
-Definition filter_even_gt7 (l : list nat) : list nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition filter_even_gt7 (l : list nat) : list nat :=
+  filter (fun n => (andb (even n) (ltb 7 n))) l. 
 
 Example test_filter_even_gt7_1 :
   filter_even_gt7 [1;2;6;9;10;3;12;8] = [10;12;8].
- (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed. 
 
 Example test_filter_even_gt7_2 :
   filter_even_gt7 [5;2;6;19;129] = [].
- (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (partition)
@@ -751,12 +751,12 @@ Definition partition {X : Type}
                      (test : X -> bool)
                      (l : list X)
                    : list X * list X
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := pair (filter test l) (filter (fun x => negb (test x)) l).
 
 Example test_partition1: partition odd [1;2;3;4;5] = ([1;3;5], [2;4]).
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 Example test_partition2: partition (fun x => false) [5;9;0] = ([], [5;9;0]).
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed. 
 (** [] *)
 
 (* ================================================================= *)
@@ -803,10 +803,25 @@ Proof. reflexivity. Qed.
     Show that [map] and [rev] commute.  You may need to define an
     auxiliary lemma. *)
 
+Lemma map_app_distr: forall (X Y : Type) (f : X -> Y) (l1 l2 : list X),
+  map f (l1 ++ l2) = (map f l1) ++ (map f l2).
+Proof. 
+  intros. induction l1 as [| h1 t1 IHl1].
+  - (* l1 = nil *)
+    reflexivity.
+  - (* l1 = cons h1 t1 *)
+    simpl. rewrite -> IHl1. reflexivity.
+Qed.
+
 Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
   map f (rev l) = rev (map f l).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction l as [| h t IHl1].
+  - (* l = nil *)
+    reflexivity.
+  - (* l = cons h t *)
+    simpl. rewrite -> map_app_distr. rewrite -> IHl1. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, especially useful (flat_map)
@@ -822,13 +837,16 @@ Proof.
 *)
 
 Fixpoint flat_map {X Y: Type} (f: X -> list Y) (l: list X)
-                   : list Y
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+                   : list Y := 
+  match l with 
+  | [] => [] 
+  | h :: t => (f h) ++ (flat_map f t)
+  end.
 
 Example test_flat_map1:
   flat_map (fun n => [n;n;n]) [1;5;4]
   = [1; 1; 1; 5; 5; 5; 4; 4; 4].
- (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 (** [] *)
 
 (** Lists are not the only inductive type for which [map] makes sense.
@@ -905,9 +923,17 @@ Proof. reflexivity. Qed.
     situation where it would be useful for [X] and [Y] to be
     different? *)
 
-(* FILL IN HERE
+Definition all_even (l : list nat) :=
+  fold (fun n b => (andb (even n) b)) l true.
 
-    [] *)
+Example all_even_example1 :
+  all_even [2;4;6;8] = true.
+Proof. reflexivity. Qed.
+
+Example all_even_example2 :
+  all_even [2;4;6;9] = false.
+Proof. reflexivity. Qed.
+(** [] *)
 
 (* ================================================================= *)
 (** ** Functions That Construct Functions *)
@@ -981,7 +1007,13 @@ Proof. reflexivity. Qed.
 Theorem fold_length_correct : forall X (l : list X),
   fold_length l = length l.
 Proof.
-(* FILL IN HERE *) Admitted.
+  induction l as [| x l' IHl'].
+  - (* l = nil *)
+    reflexivity.
+  - (* l = cons x l' *)
+    unfold fold_length. simpl. unfold fold_length in IHl'.
+    rewrite -> IHl'. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (fold_map)
@@ -990,14 +1022,23 @@ Proof.
     below. *)
 
 Definition fold_map {X Y: Type} (f: X -> Y) (l: list X) : list Y
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := fold (fun x ly => (f x) :: ly) l [].
 
 (** Write down a theorem [fold_map_correct] stating that [fold_map] is
     correct, and prove it in Coq.  (Hint: again, remember that
     [reflexivity] simplifies expressions a bit more aggressively than
     [simpl].) *)
 
-(* FILL IN HERE *)
+Theorem fold_map_correct : forall X Y (f: X -> Y) (l: list X), 
+  fold_map f l = map f l. 
+Proof. 
+  induction l as [| x l' IHl'].
+  - (* l = nil *)
+    reflexivity.
+  - (* l = cons x l' *) 
+    unfold fold_map. simpl. unfold fold_map in IHl'. 
+    rewrite ->IHl'. reflexivity.
+Qed.
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_fold_map : option (nat*string) := None.
@@ -1036,7 +1077,7 @@ Definition prod_curry {X Y Z : Type}
 
 Definition prod_uncurry {X Y Z : Type}
   (f : X -> Y -> Z) (p : X * Y) : Z
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := f (fst p) (snd p).
 
 (** As a (trivial) example of the usefulness of currying, we can use it
     to shorten one of the examples that we saw above: *)
@@ -1054,14 +1095,13 @@ Theorem uncurry_curry : forall (X Y Z : Type)
                         (f : X -> Y -> Z)
                         x y,
   prod_curry (prod_uncurry f) x y = f x y.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros.
+  unfold prod_curry. unfold prod_uncurry. simpl. reflexivity. Qed.
 
 Theorem curry_uncurry : forall (X Y Z : Type)
                         (f : (X * Y) -> Z) (p : X * Y),
   prod_uncurry (prod_curry f) p = f p.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros. destruct p. reflexivity. Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (nth_error_informal)
@@ -1078,9 +1118,17 @@ Proof.
 
    forall X l n, length l = n -> @nth_error X l n = None
 
+   Proof.
+     induction l as [nil | cons a l'].
+     case nil, nth_err [] _ = None.
+     case (cons a l') with hypothesis nth_error l' (pred n) = None.
+       given n = length l > 0, 
+       so now nth_error l n = nth_error l' (pred n),
+       which is None by hypotheis.
+   Qed.
+
    Make sure to state the induction hypothesis _explicitly_.
 *)
-(* FILL IN HERE *)
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_informal_proof : option (nat*string) := None.
@@ -1172,16 +1220,16 @@ Proof. reflexivity. Qed.
     output. In other words, do it [n] times, then do it once more. *)
 
 Definition scc (n : cnat) : cnat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := fun X f x => (f (n X f x)).
 
 Example scc_1 : scc zero = one.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example scc_2 : scc one = two.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example scc_3 : scc two = three.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 (** [] *)
 
@@ -1196,17 +1244,17 @@ Proof. (* FILL IN HERE *) Admitted.
     [x]. *)
 
 Definition plus (n m : cnat) : cnat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := fun (X : Type) (f : X -> X) (x : X) => n X f (m X f x).
 
 Example plus_1 : plus zero one = one.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed. 
 
 Example plus_2 : plus two three = plus three two.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example plus_3 :
   plus (plus two two) three = plus one (plus three three).
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 (** [] *)
 
@@ -1225,16 +1273,16 @@ Proof. (* FILL IN HERE *) Admitted.
     unchanged. *)
 
 Definition mult (n m : cnat) : cnat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := fun (X : Type) (f : X -> X) (x : X) => n X (m X f) x.
 
 Example mult_1 : mult one one = one.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example mult_2 : mult zero (plus three three) = zero.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example mult_3 : mult two three = plus three three.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 (** [] *)
 
@@ -1250,16 +1298,18 @@ Proof. (* FILL IN HERE *) Admitted.
     Finding the right type can be tricky. *)
 
 Definition exp (n m : cnat) : cnat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := fun X => m (X -> X) (n X).
 
 Example exp_1 : exp two two = plus two two.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example exp_2 : exp three zero = one.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example exp_3 : exp three two = plus (mult two (mult two two)) one.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
+
+Compute (m : cnat).
 
 (** [] *)
 
