@@ -77,7 +77,10 @@ Theorem silly_ex : forall p,
   even p = true ->
   odd (S p) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros p. intros Hn1 Hn2 Hp. 
+  apply Hn2. apply Hn1. 
+  rewrite -> Hp. reflexivity.
+Qed. 
 (** [] *)
 
 (** To use the [apply] tactic, the (conclusion of the) fact
@@ -107,12 +110,15 @@ Proof.
     previously-defined theorem about [rev] from [Lists].  Use
     that theorem as part of your (relatively short) solution to this
     exercise. You do not need [induction]. *)
+Search rev.
 
 Theorem rev_exercise1 : forall (l l' : list nat),
   l = rev l' ->
   l' = rev l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. rewrite -> H.
+  symmetry. apply rev_involutive.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (apply_rewrite)
@@ -195,7 +201,8 @@ Example trans_eq_exercise : forall (n m o p : nat),
      (n + p) = m ->
      (n + p) = (minustwo o).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m o p eq1 eq2.
+  rewrite -> eq2. apply eq1.  Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -282,7 +289,11 @@ Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
   j = z :: l ->
   x = y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X x y z l j H1 H2. 
+  injection H1 as H11 H12.
+  rewrite -> H2 in H12.
+  injection H12 as H13. 
+  rewrite -> H11. rewrite -> H13. reflexivity.  Qed.
 (** [] *)
 
 (** So much for injectivity of constructors.  What about disjointness? *)
@@ -332,7 +343,7 @@ Example discriminate_ex3 :
     x :: y :: l = [] ->
     x = z.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X x y z l j H. discriminate H. Qed. 
 (** [] *)
 
 (** For a more useful example, we can use [discriminate] to make a
@@ -646,7 +657,16 @@ Proof.
 Theorem eqb_true : forall n m,
   n =? m = true -> n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn']. 
+  - (* n = 0 *)
+    intros m H. destruct m as [| m'] eqn:Hm'.
+    + (* m = 0 *) reflexivity.
+    + (* m = S m' *) discriminate H.
+  - (* n = S n' *)
+    intros m H. destruct m as [| m'] eqn:Hm'.
+    + (* m = 0 *) discriminate H. 
+    + (* m = S m' *) f_equal. 
+      apply IHn'. simpl in H. apply H. Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (eqb_true_informal)
