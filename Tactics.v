@@ -689,7 +689,17 @@ Theorem plus_n_n_injective : forall n m,
   n + n = m + m ->
   n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+  - (* n = 0 *)
+    intros m H. destruct m as [| m'] eqn:Hm'.
+    + (* m = 0 *) reflexivity.
+    + (* m = S m' *) discriminate H.
+  - (* n = S n' *)
+    intros m H. destruct m as [| m'] eqn:Hm'.
+    + (* m = 0 *) discriminate H. 
+    + (* m = S m' *) f_equal. 
+      apply IHn'. rewrite <- plus_n_Sm in H. rewrite <- plus_n_Sm in H.
+      simpl in H. injection H as Hnm. apply Hnm. Qed.
 (** [] *)
 
 (** The strategy of doing fewer [intros] before an [induction] to
@@ -796,7 +806,16 @@ Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
   length l = n ->
   nth_error l n = None.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n X l. generalize dependent n.
+  induction l as [| l' IHl'].
+  - (* l = nil *) intros n. destruct n as [| n'] eqn:Hn'.
+    + (* n = 0 *) reflexivity.
+    + (* n = S n' *) intros H. discriminate H. 
+  - (* l = cons l' *) intros n. destruct n as [| n'] eqn:Hn'.
+    + (* n = 0 *) intros H. discriminate H.
+    + (* n = S n' *) intros H. simpl in H.
+      apply IHIHl'. injection H as Hl'. apply Hl'. 
+Qed.
 (** [] *)
 
 (* ################################################################# *)
