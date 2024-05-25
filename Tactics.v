@@ -1003,7 +1003,18 @@ Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X Y l l1 l2 Hl1l2.
+  symmetry in Hl1l2.
+  induction l as [| (x1, x2) t IHl].
+  - (* l = [] *)  
+    simpl in Hl1l2. injection Hl1l2.
+    intros Hl2 Hl1. rewrite Hl1. rewrite Hl2. reflexivity.
+  - (* l = (x1, x2) :: t *)
+    simpl in Hl1l2.
+    destruct (split t) as (l1', l2') in Hl1l2. injection Hl1l2.
+    intros Hl2 Hl1. rewrite Hl1. rewrite Hl2. simpl. 
+Abort.
+    
 (** [] *)
 
 (** The [eqn:] part of the [destruct] tactic is optional; although
@@ -1078,7 +1089,37 @@ Theorem bool_fn_applied_thrice :
   forall (f : bool -> bool) (b : bool),
   f (f (f b)) = f b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros f.
+  destruct (f true) eqn:Hf_true.
+  - (* f true = true *) 
+    destruct (f false) eqn:Hf_false.
+    + (* f false = true *)
+      destruct b.
+      ++ (* b = true *)
+        rewrite -> Hf_true. rewrite -> Hf_true. rewrite -> Hf_true. reflexivity.
+      ++ (* b = false *)
+        rewrite -> Hf_false. rewrite -> Hf_true. rewrite ->  Hf_true. reflexivity.
+    + (* f flase = false *)
+      destruct b.  
+      ++ (* b = true *)
+        rewrite -> Hf_true. rewrite -> Hf_true. rewrite -> Hf_true. reflexivity.
+      ++ (* b = false *)
+        rewrite -> Hf_false. rewrite -> Hf_false. rewrite ->  Hf_false. reflexivity.
+  - (* f true = false *)
+    destruct (f false) eqn:Hf_false.
+    + (* f false = true *)
+      destruct b.
+      ++ (* b = true *)
+        rewrite -> Hf_true. rewrite -> Hf_false. rewrite -> Hf_true. reflexivity.
+      ++ (* b = false *)
+        rewrite -> Hf_false. rewrite -> Hf_true. rewrite ->  Hf_false. reflexivity.
+    + (* f false = false *)
+      destruct b.  
+      ++ (* b = true *)
+        rewrite -> Hf_true. rewrite -> Hf_false. rewrite -> Hf_false. reflexivity.
+      ++ (* b = false *)
+        rewrite -> Hf_false. rewrite -> Hf_false. rewrite ->  Hf_false. reflexivity.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
