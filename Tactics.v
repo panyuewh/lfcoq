@@ -1003,17 +1003,19 @@ Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  intros X Y l l1 l2 Hl1l2.
-  symmetry in Hl1l2.
-  induction l as [| (x1, x2) t IHl].
+  intros X Y l.
+  induction l as [| (x1, x2) l' IHl'].
   - (* l = [] *)  
-    simpl in Hl1l2. injection Hl1l2.
-    intros Hl2 Hl1. rewrite Hl1. rewrite Hl2. reflexivity.
-  - (* l = (x1, x2) :: t *)
-    simpl in Hl1l2.
-    destruct (split t) as (l1', l2') in Hl1l2. injection Hl1l2.
-    intros Hl2 Hl1. rewrite Hl1. rewrite Hl2. simpl. 
-Abort.
+    simpl. intros l1 l2 H.
+    injection H as H1 H2.
+    rewrite <- H1, <- H2. reflexivity.
+  - (* l = (x1, x2) :: l' *)
+    simpl. destruct (split l') as [l1' l2'].
+    intros l1 l2 H. injection H as H1 H2.
+    assert (Hc : combine l1' l2' = l').
+    { apply IHl'. reflexivity. }
+    rewrite <- H1, <- H2. simpl. rewrite -> Hc. reflexivity.
+Qed.    
     
 (** [] *)
 
