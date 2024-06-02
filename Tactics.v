@@ -14,7 +14,6 @@
     - more details on how to reason by case analysis. *)
 
 Set Warnings "-notation-overridden,-parsing,-deprecated-hint-without-locality".
-  (* FILL IN HERE *) Admitted.
 From LF Require Export Poly.
 
 (* ################################################################# *)
@@ -1345,16 +1344,16 @@ Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
   end.
 
 Example test_forallb_1 : forallb odd [1;3;5;7;9] = true.
-Proof. reflexivity.
+Proof. reflexivity. Qed.
 
 Example test_forallb_2 : forallb negb [false;false] = true.
-Proof. reflexivity.
+Proof. reflexivity. Qed.
 
 Example test_forallb_3 : forallb even [0;2;4;5] = false.
-Proof. reflexivity.
+Proof. reflexivity. Qed.
 
 Example test_forallb_4 : forallb (eqb 5) [] = true.
-Proof. reflexivity.
+Proof. reflexivity. Qed.
 
 Fixpoint existsb {X : Type} (test : X -> bool) (l : list X) : bool :=
   match l with 
