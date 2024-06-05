@@ -640,11 +640,13 @@ Qed.
 
 Lemma apply_iff_example1:
   forall P Q R : Prop, (P <-> Q) -> (Q -> R) -> (P -> R).
+Proof.
   intros P Q R Hiff H HP. apply H.  apply Hiff. apply HP.
 Qed.
 
 Lemma apply_iff_example2:
   forall P Q R : Prop, (P <-> Q) -> (P -> R) -> (Q -> R).
+Proof.
   intros P Q R Hiff H HQ. apply H.  apply Hiff. apply HQ.
 Qed.
 
@@ -656,19 +658,41 @@ Qed.
 Theorem iff_refl : forall P : Prop,
   P <-> P.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intro P. split.
+  - intro HP. apply HP.
+  - intro HP. apply HP.
+Qed.
 
 Theorem iff_trans : forall P Q R : Prop,
   (P <-> Q) -> (Q <-> R) -> (P <-> R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q R HPQ HQR. split.
+  - intro HP. apply HQR. apply HPQ. apply HP.
+  - intro HR. apply iff_sym in HPQ. apply HPQ.
+    apply iff_sym in HQR. apply HQR. apply HR.
+Qed. 
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (or_distributes_over_and) *)
 Theorem or_distributes_over_and : forall P Q R : Prop,
   P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q R. split.
+  - (* -> *) intro H. split.
+    + (* P \/ Q *) destruct H.
+      ++ left. apply H.
+      ++ right. apply H.
+    + (* P \/ R *) destruct H.
+      ++ left. apply H.
+      ++ right. apply H.
+  - (* <- *) intros [[HP1 | HQ] [HP2 | HR]].
+    + (* P *) left. apply HP1.
+    + (* P R *) left. apply HP1.
+    + (* P Q *) left. apply HP2.
+    + (* Q R *) right. split.
+      ++ apply HQ.
+      ++ apply HR.
+Qed.      
 (** [] *)
 
 (* ================================================================= *)
