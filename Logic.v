@@ -802,7 +802,10 @@ Proof.
 Theorem dist_not_exists : forall (X:Type) (P : X -> Prop),
   (forall x, P x) -> ~ (exists x, ~ P x).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X P Hall. unfold not.
+  intro H. destruct H as [x E].
+  apply E. apply Hall.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (dist_exists_or)
@@ -813,18 +816,56 @@ Proof.
 Theorem dist_exists_or : forall (X:Type) (P Q : X -> Prop),
   (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
 Proof.
-   (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X P Q. split.
+  - intros [x [HP | HQ]].
+    + left. exists x. apply HP.
+    + right. exists x. apply HQ.
+  - intros [HP | HQ]. 
+    + destruct HP as [x E]. exists x. left. apply E.
+    + destruct HQ as [x E]. exists x. right. apply E.
+Qed.
 
+(** [] *)
+ 
 (** **** Exercise: 3 stars, standard, optional (leb_plus_exists) *)
-Theorem leb_plus_exists : forall n m, n <=? m = true -> exists x, m = n+x.
+Lemma succ_le : forall n m, (S n <=? m) = true -> (n <=? m) = true. 
+Admitted.
+
+Lemma leb_Sn_n : forall n, (S n <=? n) = false.
+Admitted.
+
+Lemma minus_n_0: forall n, n - 0 = n.
+Proof. intros n. simpl. destruct n as [|n'] eqn:Hn. 
+    - simpl. reflexivity. 
+    - simpl. reflexivity. 
+Qed.
+
+Theorem leb_plus_exists : forall n m, (n <=? m) = true -> exists x, m = n+x.
 Proof.
-(* FILL IN HERE *) Admitted.
+  intros n m H. induction n as [|n' IHn'].
+  - exists (x := m). rewrite -> add_comm. rewrite add_0_r. reflexivity.
+  - destruct IHn' as [x E]. 
+    + apply succ_le. apply H.
+    + destruct x eqn:Hx.
+      ++ rewrite add_0_r in E. rewrite E in H. 
+          rewrite leb_Sn_n in H. discriminate.
+      ++ exists (x-1). rewrite Hx. simpl. rewrite -> minus_n_0. 
+          rewrite -> plus_n_Sm. apply E. 
+Qed.       
+
+Lemma add_le : forall s t, (s <=? s + t) = true.
+Proof. 
+  intros s t. induction s.
+  - simpl. reflexivity.
+  - simpl. apply IHs.
+Qed.
 
 Theorem plus_exists_leb : forall n m, (exists x, m = n+x) -> n <=? m = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  intros n m [x Hx]. destruct n. 
+  - reflexivity.
+  - rewrite Hx. simpl. apply add_le.
+Qed.   
 (** [] *)
 
 (* ################################################################# *)
