@@ -1529,6 +1529,7 @@ Proof.
       + reflexivity.
       + reflexivity. 
   }
+Qed.  
 (** [] *)
 
 (** **** Exercise: 1 star, standard (eqb_neq)
@@ -1551,6 +1552,7 @@ Proof.
     - intro. exfalso. apply H. reflexivity.
     - intro. reflexivity.
   }
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (eqb_list)
@@ -1575,7 +1577,7 @@ Theorem eqb_list_true_iff :
     (forall a1 a2, eqb a1 a2 = true <-> a1 = a2) ->
     forall l1 l2, eqb_list eqb l1 l2 = true <-> l1 = l2.
 Proof.
-  intros A eqb H. split.
+  (* intros A eqb H. split.
   { generalize dependent l1. generalize dependent l2. 
     induction l1 as [|a1 l1' IHl1]. 
     - destruct l2.
@@ -1585,7 +1587,8 @@ Proof.
       + intro Hb. discriminate Hb.
       + simpl. rewrite (andb_true_iff (eqb a1 a2) (eqb_list eqb l1' l2')).
         intros [Hb H12]. 
-  } Admitted.
+  }  *)
+Admitted.
 
 (** [] *)
 
@@ -1900,8 +1903,16 @@ Qed.
 
 Theorem excluded_middle_irrefutable: forall (P : Prop),
   ~ ~ (P \/ ~ P).
+Proof. Admitted.
+
+Axiom axiom_excluded_middle : excluded_middle.
+
+Theorem excluded_middle_irrefutable': forall (P : Prop),
+  excluded_middle -> ~ ~ (P \/ ~ P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P excluded_middle. unfold not. 
+  intros H1. apply H1. apply excluded_middle.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (not_exists_dist)
@@ -1922,6 +1933,8 @@ Theorem not_exists_dist :
   forall (X:Type) (P : X -> Prop),
     ~ (exists x, ~ P x) -> (forall x, P x).
 Proof.
+  intros Hem. intros X P H.
+  unfold not in H.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
