@@ -54,7 +54,7 @@ Definition f (n : nat) :=
 
 Fail Fixpoint reaches_1_in (n : nat) :=
   if n =? 1 then true
-  else 1 + reaches_1_in (f n).
+  else reaches_1_in (f n).
 
 (** This definition is rejected by Coq's termination checker, since
     the argument to the recursive call, [f n], is not "obviously
@@ -197,6 +197,18 @@ Proof.
     and_ transitive closure?  How about reflexive, symmetric, and
     transitive closure? *)
 
+Inductive clos_refl_sym_trans {X: Type} (R: X->X->Prop) : X->X->Prop :=
+  | r_step (x : X) : clos_refl_sym_trans R x x 
+  | s_step (x y : X) : 
+      clos_refl_sym_trans R x y -> clos_refl_sym_trans R y x
+  | t2_step (x y : X) :
+      R x y ->
+      clos_refl_sym_trans R x y
+  | t2_trans (x y z : X) :
+      clos_refl_sym_trans R x y ->
+      clos_refl_sym_trans R y z ->
+      clos_refl_sym_trans R x z.
+
 (* FILL IN HERE
 
     [] *)
@@ -229,6 +241,15 @@ Inductive Perm3 {X : Type} : list X -> list X -> Prop :=
 
     According to this definition, is [[1;2;3]] a permutation of
     [[3;2;1]]?  Is [[1;2;3]] a permutation of itself? *)
+
+Example p_123_321 : Perm3 [3;2;1] [1;2;3].
+Proof. 
+  apply perm3_trans with [2;3;1].
+  - apply perm3_swap12.
+  - apply perm3_trans with [2;1;3].
+    + apply perm3_swap23.
+    + apply perm3_swap12.
+Qed.  
 
 (* FILL IN HERE
 
@@ -313,6 +334,7 @@ Inductive ev : nat -> Prop :=
    to the left of the colon in defining [ev], we would have seen an
    error: *)
 
+ 
 Fail Inductive wrong_ev (n : nat) : Prop :=
   | wrong_ev_0 : wrong_ev 0
   | wrong_ev_SS (H: wrong_ev n) : wrong_ev (S (S n)).
@@ -358,7 +380,10 @@ Qed.
 Theorem ev_double : forall n,
   ev (double n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [|n' IHn'].
+  - simpl. apply ev_0.
+  - simpl. apply ev_SS. apply IHn'.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
