@@ -503,7 +503,13 @@ Proof.
 Theorem SSSSev__even : forall n,
   ev (S (S (S (S n)))) -> ev n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n E. inversion E as [| n' E']. 
+  inversion E' as [| n'' E'' Heq].  apply E''. Qed.
+
+Theorem SSSSev__even' : forall n,
+  ev (S (S (S (S n)))) -> ev n.
+Proof. intros n E. apply evSS_ev in E. 
+  apply evSS_ev in E. apply E. Qed. 
 (** [] *)
 
 (** **** Exercise: 1 star, standard (ev5_nonsense)
@@ -513,7 +519,8 @@ Proof.
 Theorem ev5_nonsense :
   ev 5 -> 2 + 2 = 9.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros E. inversion E. inversion H0. inversion H2.
+Qed.
 (** [] *)
 
 (** The [inversion] tactic does quite a bit of work. For
@@ -677,7 +684,12 @@ Qed.
 (** **** Exercise: 2 stars, standard (ev_sum) *)
 Theorem ev_sum : forall n m, ev n -> ev m -> ev (n + m).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m En Em. induction En as [|n' En' IH].
+  - (* En = ev_0 *)
+    simpl. apply Em. 
+  - (* En = ev_SS n' En' *)
+    simpl. apply ev_SS. apply IH.
+Qed.
 (** [] *)
 
 (** **** Exercise: 4 stars, advanced, optional (ev'_ev)
@@ -699,7 +711,7 @@ Inductive ev' : nat -> Prop :=
 
 Theorem ev'_ev : forall n, ev' n <-> ev n.
 Proof.
- (* FILL IN HERE *) Admitted.
+  Admitted.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced, especially useful (ev_ev__ev) *)
@@ -708,7 +720,13 @@ Theorem ev_ev__ev : forall n m,
   (* Hint: There are two pieces of evidence you could attempt to induct upon
       here. If one doesn't work, try the other. *)
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m Enm En. induction En as [|n' En' IH].
+  - (* En = ev_0 *)
+    simpl in Enm. apply Enm.
+  - (* En = ev_SS n' En' *)
+    simpl in Enm. inversion Enm as [| n'm Hn'm EQ']. 
+    apply IH. apply Hn'm.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (ev_plus_plus)
@@ -720,7 +738,31 @@ Proof.
 Theorem ev_plus_plus : forall n m p,
   ev (n+m) -> ev (n+p) -> ev (m+p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p Enm Enp.
+  assert (Hmp: ev ((n+m) + (n+p)) -> ev (m+p)).
+  {
+    intros H. rewrite -> add_assoc in H.
+    assert (H2nm: n + m + n = n + n + m).
+    {
+      rewrite -> add_comm. rewrite -> add_assoc. 
+      reflexivity.
+    }
+    rewrite -> H2nm in H.
+    rewrite <- add_assoc in H.
+    assert (H2n_ev: forall k, ev (k+k)).
+    {
+      intros k. induction k as [|k' IHk'].
+      - simpl. apply ev_0.
+      - simpl. rewrite -> add_comm. simpl.
+        apply ev_SS. apply IHk'.
+    } 
+    apply ev_ev__ev with (n:=n+n) in H.
+    - apply H.
+    - apply H2n_ev.
+  }
+  apply Hmp.
+  apply ev_sum. apply Enm. apply Enp.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
