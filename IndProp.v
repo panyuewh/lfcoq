@@ -839,12 +839,10 @@ End Playground.
     between every pair of natural numbers. *)
 
 Inductive total_relation : nat -> nat -> Prop :=
-  (* FILL IN HERE *)
-.
+  tr : forall n m : nat, total_relation n m.
 
 Theorem total_relation_is_total : forall n m, total_relation n m.
-  Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. apply tr. Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (empty_relation)
@@ -853,12 +851,13 @@ Theorem total_relation_is_total : forall n m, total_relation n m.
     that never holds. *)
 
 Inductive empty_relation : nat -> nat -> Prop :=
-  (* FILL IN HERE *)
-.
+  .
+
 
 Theorem empty_relation_is_empty : forall n m, ~ empty_relation n m.
-  Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.
+  intros n m H. inversion H. 
+Qed.  
 (** [] *)
 
 (** From the definition of [le], we can sketch the behaviors of
@@ -880,28 +879,52 @@ Theorem empty_relation_is_empty : forall n m, ~ empty_relation n m.
 (** **** Exercise: 5 stars, standard, optional (le_and_lt_facts) *)
 Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros m n o Hmn Hno.
+  induction Hno.
+  - apply Hmn.
+  - destruct Hno.
+    + apply le_S. apply Hmn.
+    + apply le_S. apply IHHno.
+Qed.
 
 Theorem O_le_n : forall n,
   0 <= n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. 
+  induction n.
+  - apply le_n.
+  - apply le_S. apply IHn.
+Qed.
 
 Theorem n_le_m__Sn_le_Sm : forall n m,
   n <= m -> S n <= S m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H. 
+  induction H.
+  - apply le_n.
+  - apply le_S in IHle. apply IHle. 
+Qed.
 
 Theorem Sn_le_Sm__n_le_m : forall n m,
   S n <= S m -> n <= m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H. inversion H.
+  - apply le_n.
+  - assert (HS: n <= S n). 
+    { apply le_S. apply le_n. }
+    apply le_trans with (S n). apply HS.  apply H1. 
+Qed.
 
 Theorem lt_ge_cases : forall n m,
   n < m \/ n >= m.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  intros n. unfold lt.
+  induction n.
+  - destruct m.
+    + right. apply le_n.
+    + left. apply n_le_m__Sn_le_Sm. apply O_le_n.
+  - intro m. Admitted.
+ 
 Theorem le_plus_l : forall a b,
   a <= a + b.
 Proof.
