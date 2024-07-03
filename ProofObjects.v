@@ -357,7 +357,11 @@ Print prod.
 Theorem proj1' : forall P Q,
   P /\ Q -> P.
 Proof.
-  intros P Q HPQ. destruct HPQ as [HP HQ]. apply HP.
+  intros P Q HPQ. 
+  Show Proof.
+  destruct HPQ as [HP HQ].
+  Show Proof.
+  apply HP.
   Show Proof.
 Qed.
 
@@ -427,7 +431,8 @@ Definition inj_l : forall (P Q : Prop), P -> P \/ Q :=
 
 Theorem inj_l' : forall (P Q : Prop), P -> P \/ Q.
 Proof.
-  intros P Q HP. left. apply HP.
+  intros P Q HP. 
+  Show Proof. left. Show Proof. apply HP. Show Proof.
 Qed.
 
 Definition or_elim : forall (P Q R : Prop), (P \/ Q) -> (P -> R) -> (Q -> R) -> R :=
@@ -597,7 +602,7 @@ Notation "x == y" := (eq x y)
 
 Lemma four: 2 + 2 == 1 + 3.
 Proof.
-  apply eq_refl.
+  apply eq_refl. 
 Qed.
 
 (** The [reflexivity] tactic that we have used to prove
