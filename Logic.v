@@ -826,31 +826,17 @@ Proof.
 Qed.
 
 (** [] *)
- 
+
 (** **** Exercise: 3 stars, standard, optional (leb_plus_exists) *)
-Lemma succ_le : forall n m, (S n <=? m) = true -> (n <=? m) = true. 
-Admitted.
-
-Lemma leb_Sn_n : forall n, (S n <=? n) = false.
-Admitted.
-
-Lemma minus_n_0: forall n, n - 0 = n.
-Proof. intros n. simpl. destruct n as [|n'] eqn:Hn. 
-    - simpl. reflexivity. 
-    - simpl. reflexivity. 
-Qed.
-
 Theorem leb_plus_exists : forall n m, (n <=? m) = true -> exists x, m = n+x.
 Proof.
-  intros n m H. induction n as [|n' IHn'].
-  - exists (x := m). rewrite -> add_comm. rewrite add_0_r. reflexivity.
-  - destruct IHn' as [x E]. 
-    + apply succ_le. apply H.
-    + destruct x eqn:Hx.
-      ++ rewrite add_0_r in E. rewrite E in H. 
-          rewrite leb_Sn_n in H. discriminate.
-      ++ exists (x-1). rewrite Hx. simpl. rewrite -> minus_n_0. 
-          rewrite -> plus_n_Sm. apply E. 
+  induction n as [|n' IHn'].
+  - intros. exists (x := m). reflexivity.
+  - destruct m. 
+    + discriminate.
+    + intros H. apply IHn' in H.
+      destruct H as [x0 H]. rewrite -> H.
+      exists x0. reflexivity.
 Qed.       
 
 Lemma add_le : forall s t, (s <=? s + t) = true.
@@ -1577,18 +1563,30 @@ Theorem eqb_list_true_iff :
     (forall a1 a2, eqb a1 a2 = true <-> a1 = a2) ->
     forall l1 l2, eqb_list eqb l1 l2 = true <-> l1 = l2.
 Proof.
-  (* intros A eqb H. split.
-  { generalize dependent l1. generalize dependent l2. 
+  intros A eqb H. split.
+  { generalize dependent l2. 
     induction l1 as [|a1 l1' IHl1]. 
     - destruct l2.
       + reflexivity.
-      + intro Hb. discriminate Hb.
-    - induction l2 as [|a2 l2' IHl2]. 
-      + intro Hb. discriminate Hb.
-      + simpl. rewrite (andb_true_iff (eqb a1 a2) (eqb_list eqb l1' l2')).
-        intros [Hb H12]. 
-  }  *)
-Admitted.
+      + discriminate.
+    - destruct l2. 
+      + discriminate.
+      + simpl. intros H'. rewrite andb_true_iff in H'. destruct H'.
+        apply H in H0. apply IHl1 in H1. rewrite H0. rewrite H1. reflexivity.
+  } 
+  {
+    generalize dependent l2.
+    induction l1 as [|a1 l1' IHl1].
+    - destruct l2.
+      + reflexivity.
+      + discriminate.
+    - destruct l2.
+      + discriminate.
+      + simpl. intros H'. injection H' as Hx Hl. rewrite andb_true_iff. split.
+      {rewrite Hx. rewrite H. reflexivity. }
+      {apply IHl1. apply Hl. }
+  }
+Qed.
 
 (** [] *)
 
@@ -1666,7 +1664,7 @@ Qed.
 
 Example function_equality_ex1 :
   (fun x => 3 + x) = (fun x => (pred 4) + x).
-Proof. reflexivity. Qed.
+Proof. simpl. reflexivity. Qed.
 
 (** These two functions are equal just by simplification, but in general
     functions can be equal for more interesting reasons.
@@ -1768,12 +1766,26 @@ Definition tr_rev {X} (l : list X) : list X :=
 
     Prove that the two definitions are indeed equivalent. *)
 
+Lemma rev_append_lem : forall (X : Type) (l1 l2 l3 : list X),
+  rev_append l1 (l2 ++ l3) = (rev_append l1 l2) ++ l3.
+Proof.
+  intros. generalize dependent l2.
+  induction l1 as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. intros l2. rewrite <- IH. simpl. reflexivity.
+Qed.
+
 Theorem tr_rev_correct : forall X, @tr_rev X = @rev X.
 Proof.
-  intro X. apply functional_extensionality. intro xl.
-  induction xl as [|x xl' IHxl'].
+  intro X. apply functional_extensionality. intro l.
+  induction l as [|h t IHl].
   - simpl. unfold tr_rev. simpl. reflexivity.
-  - unfold tr_rev. simpl. rewrite <- IHxl'. unfold tr_rev. Admitted.
+  - unfold tr_rev. simpl. rewrite <- IHl. unfold tr_rev.
+    Set Printing Parentheses.
+    replace (rev_append t [h]) with (rev_append t ([] ++ [h])).
+    + apply rev_append_lem.
+    + simpl. reflexivity. 
+Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -1805,7 +1817,7 @@ Definition excluded_middle := forall P : Prop,
 Theorem restricted_excluded_middle : forall P b,
   (P <-> b = true) -> P \/ ~ P.
 Proof.
-  intros P [] H.
+  intros P b H. destruct b eqn:Hb.
   - left. rewrite H. reflexivity.
   - right. rewrite H. intros contra. discriminate contra.
 Qed.
@@ -1903,7 +1915,10 @@ Qed.
 
 Theorem excluded_middle_irrefutable: forall (P : Prop),
   ~ ~ (P \/ ~ P).
-Proof. Admitted.
+Proof.
+  intros P. unfold not. intros H. apply H.
+  right. intros H2. apply H. left. apply H2.
+Qed.
 
 Axiom axiom_excluded_middle : excluded_middle.
 
@@ -1933,9 +1948,11 @@ Theorem not_exists_dist :
   forall (X:Type) (P : X -> Prop),
     ~ (exists x, ~ P x) -> (forall x, P x).
 Proof.
-  intros Hem. intros X P H.
-  unfold not in H.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros Hem X P H x. 
+  unfold excluded_middle in Hem. 
+  destruct Hem with (P := P x) as [H2 | H2]. 
+  apply H2. destruct H. exists x. apply H2.
+Qed. 
 (** [] *)
 
 (** **** Exercise: 5 stars, standard, optional (classical_axioms)
@@ -1957,13 +1974,13 @@ Proof.
 Definition peirce := forall P Q: Prop,
   ((P -> Q) -> P) -> P.
 
-Definition double_negation_elimination := forall P:Prop,
+Definition double_negation_elimination := forall P: Prop,
   ~~P -> P.
 
-Definition de_morgan_not_and_not := forall P Q:Prop,
+Definition de_morgan_not_and_not := forall P Q: Prop,
   ~(~P /\ ~Q) -> P \/ Q.
 
-Definition implies_to_or := forall P Q:Prop,
+Definition implies_to_or := forall P Q: Prop,
   (P -> Q) -> (~P \/ Q).
 
 (* FILL IN HERE
